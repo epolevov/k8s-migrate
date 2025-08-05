@@ -2,6 +2,19 @@
 
 set -e
 
+# Parse arguments
+DRY_RUN=false
+for arg in "$@"; do
+  case $arg in
+    --dryRun)
+      DRY_RUN=true
+      shift
+      ;;
+  esac
+done
+
+echo "Dry Run Mode:     $DRY_RUN"
+
 ### 🧾 Input Parameters
 read -p "Enter namespace to migrate: " NAMESPACE
 read -p "Enter source K8S context (from-cluster): " SRC_CONTEXT
@@ -62,8 +75,13 @@ kubectl --context="$DST_CONTEXT" get ns "$NAMESPACE" >/dev/null 2>&1 || {
 for RESOURCE in "${SELECTED[@]}"; do
   YAML="$TMP_DIR/${RESOURCE}.yaml"
   if [[ -s "$YAML" ]]; then
-    echo "  - Applying $RESOURCE..."
-    kubectl --context="$DST_CONTEXT" -n "$NAMESPACE" apply -f "$YAML"
+    if [[ "$DRY_RUN" == true ]]; then
+      echo "  - [dry-run] Would apply $RESOURCE..."
+      kubectl --context="$DST_CONTEXT" -n "$NAMESPACE" apply --dry-run=client -f "$YAML"
+    else
+      echo "  - Applying $RESOURCE..."
+      kubectl --context="$DST_CONTEXT" -n "$NAMESPACE" apply -f "$YAML"
+    fi
   else
     echo "  - Skipping $RESOURCE (no resources found)"
   fi
