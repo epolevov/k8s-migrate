@@ -29,6 +29,7 @@ It works using native `kubectl` commands and supports all common namespaced reso
 - Access rights to export and apply resources
 
 > Optional:
+>
 > - [`yq`](https://github.com/mikefarah/yq) for sanitizing exported YAML
 > - `kubectl neat` for cleaning unnecessary fields
 
@@ -38,7 +39,7 @@ It works using native `kubectl` commands and supports all common namespaced reso
 
 ```bash
 chmod +x k8s-migrate.sh
-./k8s-migrate.sh
+./k8s-migrate.sh [--dryRun]
 ```
 
 ```text
@@ -55,12 +56,13 @@ Namespace:        my-app
 Source cluster:   dev-cluster
 Target cluster:   prod-cluster
 Resources:        deployments services configmaps secrets ingresses pvc
+Dry Run Mode:     true
 
 Proceed with migration? (y/n): y
 
 📤 Exporting...
 📥 Importing...
-✅ Migration complete.
+✅ Migration complete (dry-run only).
 ```
 
 ---
@@ -81,6 +83,7 @@ You can select specific types or use `all` to migrate everything listed above.
 ## 🔐 Secret Handling
 
 Secrets are exported and applied as-is. Be careful:
+
 - **Do not** migrate `service account tokens` or `cloud provider credentials` unless necessary.
 - Consider sanitizing secrets before applying them to another cluster.
 
@@ -96,7 +99,7 @@ All exported resources are saved to a temporary working directory (via `mktemp -
 
 Want to improve or extend this?
 
-- Add `--dry-run` support
+- ✅ Add `--dryRun` support to preview changes before applying ✅
 - Sanitize YAML via `yq` or `kubectl neat`
 - Support Helm releases or CRDs
 - Use labels or selectors to filter resources
@@ -106,7 +109,7 @@ Want to improve or extend this?
 
 ## 🧑‍💻 Author
 
-Created by [@epolevov](https://github.com/epolevov)  
+Created by [@epolevov](https://github.com/epolevov)\
 Maintained by the engineering team at [EMD Labs](https://emd.one)
 
 ---
